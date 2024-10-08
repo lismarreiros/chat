@@ -17,10 +17,20 @@ const io = new Server(server);
 app.use(express.static(path.join(__dirname, 'public')));
 const botName = 'ChatCord Bot';
 
+function getRandomColor() {
+  const letters = '0123456789ABCDEF';
+  let color = '#';
+  for (let i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)]
+  }
+  return color
+}
+
 // Run when a client connects
 io.on('connection', (socket) => { 
   socket.on('joinRoom', ({ username, room }) => {
-    const user = userJoin(socket.id, username, room)
+    const userColor = getRandomColor()
+    const user = userJoin(socket.id, username, room, userColor)
     socket.join(user.room)
 
     // welcome user 
@@ -42,10 +52,10 @@ io.on('connection', (socket) => {
   socket.on('chatMessage', (msg) => {
     const user = getCurrentUser(socket.id)
     io
-      .to(user.room)
-      .emit('message', formatMessage(user.username, msg));
+    .to(user.room)
+    .emit('message', formatMessage(user.username, msg, user.color));
   })
-
+  
   // runs when client disconnects
   socket.on('disconnect', () => {
     const user = userLeaves(socket.id)

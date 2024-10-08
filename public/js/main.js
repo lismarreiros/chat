@@ -8,8 +8,6 @@ const { username, room } = Qs.parse(location.search, {
   ignoreQueryPrefix: true
 });
 
-// console.log(username, room)
-
 const socket = io();
 
 // join chatroom
@@ -18,12 +16,12 @@ socket.emit('joinRoom', { username, room })
 // get room and users
 socket.on('roomUsers', ({ room, users }) => {
   outputRoomName(room),
-  outPutUsers(users)
+  outputUsers(users)
 })
 
 // Message from server
 socket.on('message', message => {
-  console.log(message);
+  console.log('Message received from server:', message)
   outputMessage(message);
 
   // scroll down
@@ -48,7 +46,7 @@ function outputMessage(message) {
   const div = document.createElement('div');
   div.classList.add('message');
   div.innerHTML = `
-    <p class="meta"> ${message.username} <span>${message.time}</span></p>
+    <p class="meta" style="color: ${message.color}"> ${message.username} <span>${message.time}</span></p>
     <p class="text">${message.text}</p>
   `;
   document.querySelector('.chat-messages').appendChild(div)
@@ -60,7 +58,7 @@ function outputRoomName(room) {
 }
 
 // add users to dom
-function outPutUsers(users) {
+function outputUsers(users) {
   userList.innerHTML = `
   ${users.map(user => `<li>${user.username}</li>`).join('')}
   `
